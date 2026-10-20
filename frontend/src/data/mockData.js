@@ -1,0 +1,155 @@
+import mobileWorldImg from '../assets/shops/mobile-world.jpg';
+import shreePhotocopyImg from '../assets/shops/shree-photocopy.jpg';
+import bikanerSweetsImg from '../assets/shops/bikaner-sweets.jpg';
+import chaiAddaImg from '../assets/shops/chai-adda.jpg';
+
+export const POPULAR_SEARCHES = [
+  'mobile repair',
+  'photocopy',
+  'food',
+  'stationery',
+  'sweets',
+];
+
+export const CATEGORIES = [
+  {
+    id: 'mobile-repair',
+    name: 'Mobile Repair',
+    subtitle: 'Phone · Accessories',
+    icon: 'Smartphone',
+    query: 'mobile repair',
+  },
+  {
+    id: 'printing',
+    name: 'Printing',
+    subtitle: 'Photocopy · Printouts',
+    icon: 'Printer',
+    query: 'photocopy',
+  },
+  {
+    id: 'food-beverages',
+    name: 'Food & Beverages',
+    subtitle: 'Restaurants · Snacks',
+    icon: 'UtensilsCrossed',
+    query: 'food',
+  },
+  {
+    id: 'sweets-bakery',
+    name: 'Sweets & Bakery',
+    subtitle: 'Cakes · Desserts',
+    icon: 'Cake',
+    query: 'sweets',
+  },
+  {
+    id: 'stationery',
+    name: 'Stationery',
+    subtitle: 'Books · Supplies',
+    icon: 'BookOpen',
+    query: 'stationery',
+  },
+  {
+    id: 'general-services',
+    name: 'General Services',
+    subtitle: 'Repairs · More',
+    icon: 'Wrench',
+    query: 'repair',
+  },
+];
+
+export const NEARBY_SHOPS = [
+  {
+    id: 'mobile-world',
+    name: 'Mobile World',
+    rating: 4.5,
+    reviews: 128,
+    categories: 'Mobile Repair · Accessories',
+    tags: ['mobile repair', 'phone', 'accessories', 'screen repair'],
+    distance: '1.2 km',
+    hours: 'Open 9:00 AM - 9:00 PM',
+    isOpen: true,
+    image: mobileWorldImg,
+    address: 'Shop 14, Main Market, Sector 14, Gurgaon',
+    phone: '+91 98765 43210',
+    description: 'Expert mobile repair services for iPhone, Samsung, OnePlus, and more. Quality display replacements, quick charging port repair, and branded phone accessories.',
+    services: [
+      'Screen & Display Replacement',
+      'Battery Health Check & Replacement',
+      'Original Phone Cases & Tempered Glass',
+      'Charging Port & Speaker Repair',
+      'Software Flashing & Unlock Support',
+    ],
+  },
+  {
+    id: 'shree-photocopy-center',
+    name: 'Shree Photocopy Center',
+    rating: 4.2,
+    reviews: 86,
+    categories: 'Printing · Stationery',
+    tags: ['photocopy', 'printing', 'printouts', 'stationery', 'resume print'],
+    distance: '1.8 km',
+    hours: 'Open 8:30 AM - 8:00 PM',
+    isOpen: true,
+    image: shreePhotocopyImg,
+    address: 'SCO 28, Near Huda City Centre, Sector 29, Gurgaon',
+    phone: '+91 98123 45678',
+    description: 'Instant document printing for resumes, college assignments, and office documents. Fast high-speed xerox, spiral binding, hard binding, and color printing.',
+    services: [
+      'Urgent Resume & Document Printout',
+      'High-Speed B&W & Color Photocopy',
+      'Spiral & Hardcover Project Binding',
+      'Document Lamination (A4, A3, ID Card)',
+      'Passport Size Photo Printing',
+    ],
+  },
+  {
+    id: 'bikaner-sweets-bakery',
+    name: 'Bikaner Sweets & Bakery',
+    rating: 4.7,
+    reviews: 210,
+    categories: 'Sweets · Bakery',
+    tags: ['sweets', 'bakery', 'food', 'desserts', 'mithai', 'snacks'],
+    distance: '2.3 km',
+    hours: 'Open 8:00 AM - 10:00 PM',
+    isOpen: true,
+    image: bikanerSweetsImg,
+    address: 'Opposite Metro Pillar 114, MG Road, Gurgaon',
+    phone: '+91 99234 56789',
+    description: 'Authentic desi ghee traditional Indian sweets, fresh warm rasgullas, kaju katli, fresh bakery pastries, and morning hot samosas with mint chutney.',
+    services: [
+      'Fresh Pure Desi Ghee Mithai',
+      'Hot Samosas, Kachoris & Dhokla',
+      'Customized Birthday & Celebration Cakes',
+      'Assorted Dry Fruit Gift Boxes',
+      'Pure Milk Sweets & Bengali Delicacies',
+    ],
+  },
+  {
+    id: 'chai-adda',
+    name: 'Chai Adda',
+    rating: 4.3,
+    reviews: 97,
+    categories: 'Food & Beverages · Snacks',
+    tags: ['food', 'beverages', 'tea', 'chai', 'snacks', 'cafe'],
+    distance: '2.9 km',
+    hours: 'Open 7:00 AM - 11:00 PM',
+    isOpen: true,
+    image: chaiAddaImg,
+    address: 'Plot 45, Galleria Market, DLF Phase 4, Gurgaon',
+    phone: '+91 98987 65432',
+    description: 'A cozy neighborhood tea spot serving authentic clay-pot (kulhad) ginger tea, maska bun, spicy cheese grilled sandwiches, and steaming hot maggi.',
+    services: [
+      'Special Kulhad Masala & Adrak Chai',
+      'Crispy Bun Maska & Brun Butter',
+      'Grilled Cheese & Paneer Sandwiches',
+      'Masala Maggi & Quick Snacks',
+      'Iced Teas & Cold Coffee',
+    ],
+  },
+];
+
+export const AVAILABLE_LOCATIONS = [
+  'Gurgaon, Haryana',
+  'Delhi, NCR',
+  'Noida, Uttar Pradesh',
+  'Faridabad, Haryana',
+];
