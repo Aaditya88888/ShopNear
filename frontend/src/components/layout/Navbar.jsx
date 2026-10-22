@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BrandLogo from '../common/BrandLogo';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User as UserIcon, LogOut } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { toast } from 'react-toastify';
 
 export default function Navbar({ onNavigate, activeTab = 'home' }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const navItems = [
     { id: 'home', label: 'Home' },
@@ -19,6 +22,13 @@ export default function Navbar({ onNavigate, activeTab = 'home' }) {
     } else {
       navigate('/');
     }
+    setMobileMenuOpen(false);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    toast.info('You have been logged out.');
+    navigate('/');
     setMobileMenuOpen(false);
   };
 
@@ -60,20 +70,46 @@ export default function Navbar({ onNavigate, activeTab = 'home' }) {
           })}
         </nav>
 
-        {/* Right: Auth Buttons (Desktop) */}
+        {/* Right: Auth State (Desktop) */}
         <div className="hidden md:flex items-center space-x-3">
-          <button
-            onClick={() => navigate('/login')}
-            className="px-5 py-2 text-sm font-medium text-[#16A34A] bg-white border border-[#E2E8F0] rounded-[10px] hover:border-[#16A34A] hover:bg-[#F0FDF4] active:bg-[#DCFCE7] transition-all duration-150 cursor-pointer shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A]"
-          >
-            Log in
-          </button>
-          <button
-            onClick={() => navigate('/signup')}
-            className="px-5 py-2 text-sm font-medium text-white bg-[#16A34A] hover:bg-[#0F7A44] active:bg-[#0A5630] rounded-[10px] transition-all duration-150 cursor-pointer shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:ring-offset-1"
-          >
-            Sign up
-          </button>
+          {user ? (
+            <div className="flex items-center space-x-3">
+              {/* User Identity Pill */}
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-[#F0FDF4] border border-[#DCFCE7] rounded-xl text-xs font-medium text-[#0F172A]">
+                <div className="w-6 h-6 rounded-full bg-[#16A34A] text-white flex items-center justify-center font-bold text-[11px] uppercase">
+                  {user.email ? user.email[0] : 'U'}
+                </div>
+                <span className="max-w-[140px] truncate text-[#0F172A] font-semibold">
+                  {user.email}
+                </span>
+              </div>
+
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#64748B] hover:text-red-600 bg-white border border-[#E2E8F0] hover:border-red-200 rounded-[10px] transition-all cursor-pointer shadow-xs"
+                title="Sign out of ShopNear"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Logout</span>
+              </button>
+            </div>
+          ) : (
+            <>
+              <button
+                onClick={() => navigate('/login')}
+                className="px-5 py-2 text-sm font-medium text-[#16A34A] bg-white border border-[#E2E8F0] rounded-[10px] hover:border-[#16A34A] hover:bg-[#F0FDF4] active:bg-[#DCFCE7] transition-all duration-150 cursor-pointer shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A]"
+              >
+                Log in
+              </button>
+              <button
+                onClick={() => navigate('/signup')}
+                className="px-5 py-2 text-sm font-medium text-white bg-[#16A34A] hover:bg-[#0F7A44] active:bg-[#0A5630] rounded-[10px] transition-all duration-150 cursor-pointer shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:ring-offset-1"
+              >
+                Sign up
+              </button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Toggle Button */}
@@ -114,24 +150,44 @@ export default function Navbar({ onNavigate, activeTab = 'home' }) {
           </div>
 
           <div className="pt-2 border-t border-[#E2E8F0] flex flex-col gap-2">
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                navigate('/login');
-              }}
-              className="w-full py-2.5 text-center text-sm font-medium text-[#16A34A] bg-white border border-[#E2E8F0] rounded-[10px] hover:border-[#16A34A] hover:bg-[#F0FDF4]"
-            >
-              Log in
-            </button>
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                navigate('/signup');
-              }}
-              className="w-full py-2.5 text-center text-sm font-medium text-white bg-[#16A34A] hover:bg-[#0F7A44] rounded-[10px] shadow-xs"
-            >
-              Sign up
-            </button>
+            {user ? (
+              <div className="space-y-2">
+                <div className="px-3 py-2 bg-[#F0FDF4] rounded-lg flex items-center gap-2">
+                  <UserIcon className="w-4 h-4 text-[#16A34A]" />
+                  <span className="text-xs font-semibold text-[#0F172A] truncate">
+                    {user.email}
+                  </span>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full py-2.5 text-center text-sm font-medium text-red-600 bg-white border border-red-200 rounded-[10px] hover:bg-red-50 flex items-center justify-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            ) : (
+              <>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate('/login');
+                  }}
+                  className="w-full py-2.5 text-center text-sm font-medium text-[#16A34A] bg-white border border-[#E2E8F0] rounded-[10px] hover:border-[#16A34A] hover:bg-[#F0FDF4]"
+                >
+                  Log in
+                </button>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate('/signup');
+                  }}
+                  className="w-full py-2.5 text-center text-sm font-medium text-white bg-[#16A34A] hover:bg-[#0F7A44] rounded-[10px] shadow-xs"
+                >
+                  Sign up
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
