@@ -51,3 +51,26 @@ export const protectRoute = async (req, res, next) => {
     });
   }
 };
+
+// Optional auth: identifies user if logged in, but does not block guests
+export const optionalAuth = async (req, res, next) => {
+  try {
+    let token = req.cookies?.jwt;
+    if (!token && req.headers.authorization?.startsWith("Bearer ")) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+
+    if (token) {
+      const decoded = jwt.verify(token, ENV.JWT_SECRET);
+      if (decoded && decoded.userId) {
+        const user = await User.findById(decoded.userId).select("-password");
+        if (user) {
+          req.user = user;
+        }
+      }
+    }
+  } catch (error) {
+    // If token is invalid or expired, proceed silently as guest
+  }
+  next();
+};

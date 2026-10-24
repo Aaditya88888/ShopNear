@@ -6,15 +6,27 @@ import {
   Cake,
   BookOpen,
   Wrench,
+  Apple,
+  Carrot,
+  Scissors,
+  Shirt,
+  ShoppingBag,
+  Pill,
 } from 'lucide-react';
 
 const iconMap = {
-  Smartphone: Smartphone,
-  Printer: Printer,
+  Smartphone,
+  Printer,
   UtensilsCrossed: Utensils,
-  Cake: Cake,
-  BookOpen: BookOpen,
-  Wrench: Wrench,
+  Cake,
+  BookOpen,
+  Wrench,
+  Apple,
+  Carrot,
+  Scissors,
+  Shirt,
+  ShoppingBag,
+  Pill,
 };
 
 export default function CategoryCard({ category, isSelected, onClick }) {

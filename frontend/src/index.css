@@ -56,3 +56,23 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
 }
+
+/* WhatsApp-style fluid image expansion animation */
+@keyframes whatsappExpand {
+  0% {
+    opacity: 0;
+    transform: scale(0.68);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-whatsapp-expand {
+  animation: whatsappExpand 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}

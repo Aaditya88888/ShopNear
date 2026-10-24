@@ -19,10 +19,19 @@ export default function ShopCard({
         />
 
         {/* Status Badge (Top-Left) */}
-        <div className="absolute top-2.5 left-2.5 z-10">
-          <span className="inline-flex items-center px-3 py-0.5 rounded-full text-[11px] font-semibold bg-[#22C55E] text-white shadow-xs">
+        <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5">
+          <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-white shadow-xs ${
+              shop.isOpen ? 'bg-[#22C55E]' : 'bg-red-500'
+            }`}
+          >
             {shop.isOpen ? 'Open' : 'Closed'}
           </span>
+          {shop.distanceText && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-black/60 backdrop-blur-xs text-white">
+              {shop.distanceText}
+            </span>
+          )}
         </div>
 
         {/* Favorite Heart Button (Top-Right) */}
@@ -30,7 +39,7 @@ export default function ShopCard({
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            onToggleFavorite(shop.id);
+            onToggleFavorite(shop.id || shop._id);
           }}
           aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           className="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-xs flex items-center justify-center text-white transition-all duration-150 cursor-pointer active:scale-90"
@@ -72,7 +81,9 @@ export default function ShopCard({
           {/* Distance & Hours Metadata Row */}
           <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-[#64748B] mt-2.5 pt-2 border-t border-[#F1F5F9]">
             <MapPin className="w-3.5 h-3.5 text-[#16A34A] shrink-0" />
-            <span className="font-medium text-[#0F172A]">{shop.distance}</span>
+            <span className="font-medium text-[#0F172A]">
+              {shop.distanceText || shop.distance || 'Near you'}
+            </span>
             <span className="text-[#CBD5E1]">•</span>
             <span className="truncate">{shop.hours}</span>
           </div>

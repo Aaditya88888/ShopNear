@@ -2,6 +2,12 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
+import { Shop } from "../models/shop.model.js";
+import cloudinary, {
+  uploadProfileAvatar,
+  deleteCloudinaryImage,
+  extractPublicIdFromUrl,
+} from "../lib/cloudinary.js";
 import {
   redis,
   otpEmailRateLimiter,
@@ -10,6 +16,23 @@ import {
 } from "../lib/redis.js";
 import { sendOtpEmail, sendWelcomeEmail, sendLoginAlertEmail } from "../lib/mail.js";
 import { ENV } from "../lib/env.js";
+
+// Helper to sanitize & format user object consistently
+export const formatUser = (user) => {
+  return {
+    id: user._id,
+    email: user.email,
+    role: user.role,
+    isVerified: Boolean(user.isVerified),
+    fullName: user.fullName || "",
+    username: user.username || (user.email ? user.email.split("@")[0] : ""),
+    location: user.location || "",
+    bio: user.bio || "",
+    avatar: user.avatar || "",
+    avatarPublicId: user.avatarPublicId || "",
+    createdAt: user.createdAt,
+  };
+};
 
 // Helper to set standard HttpOnly JWT Cookie
 const setAuthCookie = (res, token) => {
@@ -254,12 +277,7 @@ export const verifySignupOtp = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "Account verified and created successfully!",
-      user: {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-        isVerified: user.isVerified,
-      },
+      user: formatUser(user),
     });
   } catch (error) {
     console.error("Error in verifySignupOtp:", error);
@@ -410,12 +428,7 @@ export const login = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Logged in successfully",
-      user: {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-        isVerified: user.isVerified,
-      },
+      user: formatUser(user),
     });
   } catch (error) {
     console.error("Error in login:", error);
@@ -484,13 +497,7 @@ export const getMe = async (req, res) => {
       return res.status(200).json({
         success: true,
         isAuthenticated: true,
-        user: {
-          id: user._id,
-          email: user.email,
-          role: user.role,
-          isVerified: user.isVerified,
-          createdAt: user.createdAt,
-        },
+        user: formatUser(user),
       });
     } catch (tokenErr) {
       // Clear invalid or expired cookie and respond with user: null
@@ -511,6 +518,250 @@ export const getMe = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal server error checking session",
+    });
+  }
+};
+
+// ==========================================
+// 7. UPDATE PROFILE
+// ==========================================
+export const updateProfile = async (req, res) => {
+  try {
+    const { fullName, username, location, bio } = req.body;
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (fullName !== undefined) user.fullName = fullName.trim();
+    if (username !== undefined) user.username = username.trim().replace(/^@/, "");
+    if (location !== undefined) user.location = location.trim();
+    if (bio !== undefined) user.bio = bio.trim();
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: formatUser(user),
+    });
+  } catch (error) {
+    console.error("Error in updateProfile:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update profile",
+    });
+  }
+};
+
+// ==========================================
+// 8. UPLOAD AVATAR
+// ==========================================
+export const uploadAvatar = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No image file provided",
+      });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Convert file buffer to base64 Data URI for Cloudinary upload
+    const b64 = Buffer.from(req.file.buffer).toString("base64");
+    const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+
+    // 1. Delete previous avatar from Cloudinary if it exists
+    const previousPublicId =
+      user.avatarPublicId || extractPublicIdFromUrl(user.avatar);
+    if (previousPublicId) {
+      await deleteCloudinaryImage(previousPublicId);
+    }
+
+    // 2. Upload new image with smart face-crop, modern format, and auto-compression
+    let avatarUrl = "";
+    let avatarPublicId = "";
+    try {
+      const uploadResult = await uploadProfileAvatar(dataURI);
+      avatarUrl = uploadResult.secure_url;
+      avatarPublicId = uploadResult.public_id;
+    } catch (cldErr) {
+      console.warn("Cloudinary upload fallback to dataURI:", cldErr.message);
+      avatarUrl = dataURI;
+    }
+
+    user.avatar = avatarUrl;
+    user.avatarPublicId = avatarPublicId;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile picture updated successfully",
+      avatar: avatarUrl,
+      user: formatUser(user),
+    });
+  } catch (error) {
+    console.error("Error in uploadAvatar:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to upload avatar",
+    });
+  }
+};
+
+// ==========================================
+// 8B. REMOVE AVATAR
+// ==========================================
+export const removeAvatar = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // 1. Delete previous avatar from Cloudinary if it exists
+    const previousPublicId =
+      user.avatarPublicId || extractPublicIdFromUrl(user.avatar);
+    if (previousPublicId) {
+      await deleteCloudinaryImage(previousPublicId);
+    }
+
+    // 2. Clear avatar fields
+    user.avatar = "";
+    user.avatarPublicId = "";
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile picture removed successfully",
+      user: formatUser(user),
+    });
+  } catch (error) {
+    console.error("Error in removeAvatar:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to remove avatar",
+    });
+  }
+};
+
+// ==========================================
+// 9. CHANGE PASSWORD
+// ==========================================
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password and new password are required",
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "New password must be at least 6 characters long",
+      });
+    }
+
+    const user = await User.findById(req.user._id).select("+password");
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password does not match our records",
+      });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password changed successfully",
+    });
+  } catch (error) {
+    console.error("Error in changePassword:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to change password",
+    });
+  }
+};
+
+// ==========================================
+// 10. DELETE ACCOUNT
+// ==========================================
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+    if (user) {
+      // 1. Delete user avatar from Cloudinary
+      const avatarId =
+        user.avatarPublicId || extractPublicIdFromUrl(user.avatar);
+      if (avatarId) {
+        await deleteCloudinaryImage(avatarId);
+      }
+    }
+
+    // 2. Delete user's shop images from Cloudinary
+    const userShops = await Shop.find({ owner: userId });
+    for (const shop of userShops) {
+      const shopImgId =
+        shop.imagePublicId || extractPublicIdFromUrl(shop.image);
+      if (shopImgId) {
+        await deleteCloudinaryImage(shopImgId);
+      }
+    }
+
+    // 3. Remove user's shops from database
+    await Shop.deleteMany({ owner: userId });
+
+    // 4. Remove user from database
+    await User.findByIdAndDelete(userId);
+
+    // 5. Clear session cookie
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      secure: ENV.NODE_ENV === "production",
+      sameSite: ENV.NODE_ENV === "production" ? "none" : "lax",
+      path: "/",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Your account and all associated data have been permanently deleted.",
+    });
+  } catch (error) {
+    console.error("Error in deleteAccount:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete account",
     });
   }
 };

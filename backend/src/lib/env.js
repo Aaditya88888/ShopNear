@@ -20,5 +20,14 @@ export const ENV = {
   SMTP_PORT: parseInt(process.env.SMTP_PORT, 10) || 465,
   SMTP_USER: process.env.SMTP_USER || "shopnearteam@gmail.com",
   SMTP_PASS: process.env.SMTP_PASS,
-  EMAIL_FROM: process.env.EMAIL_FROM || "ShopNear Team <shopnearteam@gmail.com>",
+  EMAIL_FROM:
+    process.env.EMAIL_FROM || "ShopNear Team <shopnearteam@gmail.com>",
+
+  // Cloudinary Settings
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+
+  // Location Services
+  LOCATIONIQ_KEY: process.env.LOCATIONIQ_KEY || "",
 };

@@ -168,6 +168,108 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // 6. Update Profile
+  const updateProfile = async (profileData) => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/profile`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(profileData),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, message: data.message || 'Failed to update profile' };
+      }
+      setUser(data.user);
+      return { success: true, message: data.message, user: data.user };
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      return { success: false, message: 'Network error while updating profile' };
+    }
+  };
+
+  // 7. Upload Avatar
+  const uploadAvatar = async (file) => {
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const res = await fetch(`${API_BASE}/auth/avatar`, {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, message: data.message || 'Failed to upload image' };
+      }
+      setUser(data.user);
+      return { success: true, message: data.message, avatar: data.avatar };
+    } catch (err) {
+      console.error('Error uploading avatar:', err);
+      return { success: false, message: 'Network error while uploading profile photo' };
+    }
+  };
+
+  // 7B. Remove Avatar
+  const removeAvatar = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/avatar`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, message: data.message || 'Failed to remove image' };
+      }
+      setUser(data.user);
+      return { success: true, message: data.message, user: data.user };
+    } catch (err) {
+      console.error('Error removing avatar:', err);
+      return { success: false, message: 'Network error while removing profile photo' };
+    }
+  };
+
+  // 8. Change Password
+  const changePassword = async (currentPassword, newPassword) => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/change-password`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, message: data.message || 'Failed to change password' };
+      }
+      return { success: true, message: data.message };
+    } catch (err) {
+      console.error('Error changing password:', err);
+      return { success: false, message: 'Network error while changing password' };
+    }
+  };
+
+  // 9. Delete Account
+  const deleteAccount = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/account`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, message: data.message || 'Failed to delete account' };
+      }
+      setUser(null);
+      return { success: true, message: data.message };
+    } catch (err) {
+      console.error('Error deleting account:', err);
+      return { success: false, message: 'Network error while deleting account' };
+    }
+  };
+
   const resetSignupStep = () => {
     setSignupStep('form');
     setAuthError(null);
@@ -177,6 +279,7 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         loading,
         authError,
         setAuthError,
@@ -188,6 +291,11 @@ export function AuthProvider({ children }) {
         resendSignupOtp,
         login,
         logout,
+        updateProfile,
+        uploadAvatar,
+        removeAvatar,
+        changePassword,
+        deleteAccount,
         resetSignupStep,
       }}
     >

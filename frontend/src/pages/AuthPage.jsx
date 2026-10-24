@@ -32,12 +32,13 @@ export default function AuthPage({ mode: initialMode }) {
     resetSignupStep,
   } = useAuth();
 
-  // If already authenticated, redirect to home
+  // If already authenticated, redirect to original destination or home
   useEffect(() => {
     if (user) {
-      navigate('/', { replace: true });
+      const destination = location.state?.from?.pathname || '/';
+      navigate(destination, { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, location.state]);
 
   // Determine active mode from URL (/signup vs /login)
   const isSignUp = location.pathname === '/signup' || initialMode === 'signup';
@@ -112,7 +113,8 @@ export default function AuthPage({ mode: initialMode }) {
     setIsSubmitting(false);
     if (res.success) {
       toast.success('Welcome back! Logged in successfully.');
-      navigate('/');
+      const destination = location.state?.from?.pathname || '/';
+      navigate(destination);
     } else {
       toast.error(res.message || 'Login failed');
     }
@@ -152,7 +154,8 @@ export default function AuthPage({ mode: initialMode }) {
     setIsSubmitting(false);
     if (res.success) {
       toast.success('Account verified successfully! Welcome to ShopNear 🎉');
-      navigate('/');
+      const destination = location.state?.from?.pathname || '/';
+      navigate(destination);
     } else {
       toast.error(res.message || 'Verification failed');
     }

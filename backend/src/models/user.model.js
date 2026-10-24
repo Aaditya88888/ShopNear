@@ -29,6 +29,34 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "shopkeeper", "admin"],
       default: "user",
     },
+    fullName: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    username: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    location: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    bio: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    avatar: {
+      type: String,
+      default: "",
+    },
+    avatarPublicId: {
+      type: String,
+      default: "",
+    },
     shops: [
       {
         type: mongoose.Schema.Types.ObjectId,

@@ -26,12 +26,13 @@ export default function BrandLogo({ size = 'default', showTagline = true, classN
       {/* Brand Text & Tagline */}
       <div className="flex flex-col leading-tight min-w-0">
         <span
-          className={`font-bold tracking-tight text-[#16A34A] ${
+          className={`font-bold tracking-tight text-[#0F172A] ${
             isSmall ? "text-base" : "text-lg sm:text-2xl"
           }`}
           style={{ letterSpacing: '-0.02em' }}
         >
-          ShopNear
+          <span>Shop</span>
+          <span className="text-[#16A34A]">Near</span>
         </span>
         {showTagline && (
           <span className="text-[10px] sm:text-[11px] font-normal text-[#64748B] -mt-0.5 tracking-tight truncate">
