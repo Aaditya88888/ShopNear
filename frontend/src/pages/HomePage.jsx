@@ -5,6 +5,7 @@ import CategorySection from '../components/categories/CategorySection';
 import NearbyShopsSection from '../components/shops/NearbyShopsSection';
 import PromotionalBanner from '../components/banner/PromotionalBanner';
 import ShopDetailModal from '../components/common/ShopDetailModal';
+import Footer from '../components/layout/Footer';
 import BottomNav from '../components/layout/BottomNav';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
@@ -279,8 +280,8 @@ export default function HomePage() {
         onNavigate={handleNavigate}
       />
 
-      {/* Main Content Area (With bottom padding on mobile/tablet to avoid BottomNav overlap) */}
-      <main className="flex-1 pb-20 lg:pb-0">
+      {/* Main Content Area */}
+      <main className="flex-1">
         {/* 2. Hero Section */}
         <HeroSection
           searchQuery={searchQuery}
@@ -315,12 +316,8 @@ export default function HomePage() {
         <PromotionalBanner />
       </main>
 
-      {/* Minimal Footer */}
-      <footer className="py-6 border-t border-[#E2E8F0] bg-white text-center text-xs text-[#64748B]">
-        <div className="max-w-6xl mx-auto px-4">
-          <p>© 2026 ShopNear. Empowering local neighborhood businesses & everyday convenience.</p>
-        </div>
-      </footer>
+      {/* Redesigned Modern App & Desktop Footer */}
+      <Footer />
 
       {/* Interactive Shop Detail Modal */}
       {selectedShopForModal && (
