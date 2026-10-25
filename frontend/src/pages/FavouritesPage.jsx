@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
 import ShopCard from '../components/shops/ShopCard';
 import ShopDetailModal from '../components/common/ShopDetailModal';
+import BottomNav from '../components/layout/BottomNav';
 import { Heart, Search, ArrowRight, Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
@@ -73,7 +74,7 @@ export default function FavouritesPage() {
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col text-[#0F172A] selection:bg-[#16A34A] selection:text-white">
       <Navbar activeTab="favourites" />
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 pb-20 lg:pb-10">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#E2E8F0]">
           <div>
@@ -149,6 +150,9 @@ export default function FavouritesPage() {
           />
         )}
       </main>
+
+      {/* Mobile/Tablet Fixed Bottom Navigation (< 1024px) */}
+      <BottomNav />
     </div>
   );
 }

@@ -25,6 +25,7 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import ShopDetailModal from '../components/common/ShopDetailModal';
 import LeafletMap from '../components/common/LeafletMap';
+import BottomNav from '../components/layout/BottomNav';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
@@ -344,7 +345,7 @@ export default function MyShopsPage() {
       <Navbar activeTab="my-shops" />
 
       {/* Main Content Layout */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-20 lg:pb-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-7 items-start">
           
           {/* ======================================================== */}
@@ -1127,6 +1128,9 @@ export default function MyShopsPage() {
           onClose={() => setSelectedShop(null)}
         />
       )}
+
+      {/* Mobile/Tablet Fixed Bottom Navigation (< 1024px) */}
+      <BottomNav />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import CategorySection from '../components/categories/CategorySection';
 import NearbyShopsSection from '../components/shops/NearbyShopsSection';
 import PromotionalBanner from '../components/banner/PromotionalBanner';
 import ShopDetailModal from '../components/common/ShopDetailModal';
+import BottomNav from '../components/layout/BottomNav';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 
@@ -278,8 +279,8 @@ export default function HomePage() {
         onNavigate={handleNavigate}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1">
+      {/* Main Content Area (With bottom padding on mobile/tablet to avoid BottomNav overlap) */}
+      <main className="flex-1 pb-20 lg:pb-0">
         {/* 2. Hero Section */}
         <HeroSection
           searchQuery={searchQuery}
@@ -348,6 +349,9 @@ export default function HomePage() {
           </button>
         </div>
       )}
+
+      {/* Mobile/Tablet Fixed Bottom Navigation (< 1024px) */}
+      <BottomNav />
     </div>
   );
 }

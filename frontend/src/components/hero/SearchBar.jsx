@@ -194,96 +194,187 @@ export default function SearchBar({
     <div className="relative w-full" ref={containerRef}>
       <form
         onSubmit={handleSubmit}
-        className="relative w-full bg-white rounded-2xl border border-[#E2E8F0] shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.06)] focus-within:border-[#16A34A] focus-within:ring-2 focus-within:ring-[#16A34A]/20 transition-all p-2 flex flex-col md:flex-row items-stretch md:items-center gap-2 z-20"
+        className="relative w-full bg-white rounded-2xl border border-[#E2E8F0] shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.06)] focus-within:border-[#16A34A] focus-within:ring-2 focus-within:ring-[#16A34A]/20 transition-all z-20"
       >
-        {/* 1. Search Query Input */}
-        <div className="flex-1 flex items-center px-3 py-1.5 min-w-0 relative">
-          <Search className="w-5 h-5 text-[#94A3B8] shrink-0 mr-3" />
-          <input
-            ref={inputRef}
-            type="text"
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            onFocus={() => {
-              if (searchQuery.trim().length > 0) setSuggestionsOpen(true);
-            }}
-            onKeyDown={handleKeyDown}
-            placeholder="Search for shops, services, or categories (e.g. stationery, sweets, photocopy)..."
-            aria-label="Search query"
-            autoComplete="off"
-            className="w-full min-w-0 bg-transparent text-[#0F172A] placeholder-[#94A3B8] text-sm md:text-[15px] focus:outline-none"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => {
-                onSearchChange('');
-                setSuggestions([]);
-                setSuggestionsOpen(false);
+        {/* ======================================================== */}
+        {/* MOBILE & TABLET 2-TIER CARD LAYOUT (< 1024px)            */}
+        {/* ======================================================== */}
+        <div className="flex flex-col lg:hidden">
+          {/* Top Row: Search Input with Magnifier & Clear Button */}
+          <div className="flex items-center px-4 py-3 min-w-0 border-b border-[#F1F5F9]">
+            <Search className="w-5 h-5 text-[#94A3B8] shrink-0 mr-3" />
+            <input
+              ref={inputRef}
+              type="text"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              onFocus={() => {
+                if (searchQuery.trim().length > 0) setSuggestionsOpen(true);
               }}
-              className="text-xs text-[#94A3B8] hover:text-[#0F172A] px-1 py-0.5"
-              title="Clear search"
-            >
-              ✕
-            </button>
-          )}
-        </div>
-
-        {/* Vertical separator on desktop */}
-        <div className="hidden md:block w-px h-8 bg-[#E2E8F0]" />
-
-        {/* 2. Location Selector Dropdown */}
-        <div className="relative" ref={locationRef}>
-          <button
-            type="button"
-            onClick={() => setLocationOpen(!locationOpen)}
-            aria-expanded={locationOpen}
-            aria-haspopup="listbox"
-            className="w-full md:w-auto flex items-center justify-between gap-2 px-3 py-2 text-xs md:text-sm font-medium text-[#0F172A] hover:bg-slate-50 rounded-xl transition-colors cursor-pointer border border-[#E2E8F0] md:border-transparent"
-          >
-            <div className="flex items-center gap-2 truncate">
-              <MapPin className="w-4 h-4 text-[#16A34A] shrink-0" />
-              <span className="truncate max-w-[150px] sm:max-w-[180px]">
-                {selectedLocation || 'Use my current location'}
-              </span>
-            </div>
-            <ChevronDown
-              className={`w-4 h-4 text-[#64748B] shrink-0 transition-transform duration-200 ${
-                locationOpen ? 'rotate-180 text-[#16A34A]' : ''
-              }`}
+              onKeyDown={handleKeyDown}
+              placeholder="Search for shops, services..."
+              aria-label="Search query"
+              autoComplete="off"
+              className="w-full min-w-0 bg-transparent text-[#0F172A] placeholder-[#94A3B8] text-sm sm:text-base focus:outline-none"
             />
-          </button>
-
-          {locationOpen && (
-            <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl border border-[#E2E8F0] shadow-xl z-50 p-1.5 animate-in fade-in zoom-in-95 duration-150">
-              <div className="px-3 py-1.5 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider">
-                Location
-              </div>
-
+            {searchQuery && (
               <button
                 type="button"
-                onClick={() => handleSelectLoc('Use my current location')}
-                className="w-full flex items-center justify-between px-3.5 py-2.5 text-xs text-left hover:bg-[#F0FDF4] rounded-lg transition-colors cursor-pointer"
+                onClick={() => {
+                  onSearchChange('');
+                  setSuggestions([]);
+                  setSuggestionsOpen(false);
+                }}
+                className="text-xs text-[#94A3B8] hover:text-[#0F172A] px-2 py-1"
+                title="Clear search"
               >
-                <div className="flex items-center gap-2 text-[#16A34A] font-semibold">
-                  <MapPin className="w-4 h-4 shrink-0" />
-                  <span>Use my current location (GPS)</span>
-                </div>
-                {selectedLocation === 'Use my current location' && (
-                  <Check className="w-3.5 h-3.5 text-[#16A34A]" />
-                )}
+                ✕
               </button>
+            )}
+          </div>
+
+          {/* Bottom Row: Location Selector & Search Button */}
+          <div className="flex items-center justify-between p-2.5 sm:px-4 sm:py-3 gap-2">
+            {/* Location Selector */}
+            <div className="relative min-w-0 flex-1" ref={locationRef}>
+              <button
+                type="button"
+                onClick={() => setLocationOpen(!locationOpen)}
+                className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-[#0F172A] hover:text-[#16A34A] transition-colors cursor-pointer truncate"
+              >
+                <MapPin className="w-4 h-4 text-[#16A34A] shrink-0" />
+                <span className="truncate max-w-[170px] sm:max-w-[260px]">
+                  {selectedLocation || 'Use my current location'}
+                </span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-[#64748B] shrink-0 transition-transform duration-200 ${
+                    locationOpen ? 'rotate-180 text-[#16A34A]' : ''
+                  }`}
+                />
+              </button>
+
+              {locationOpen && (
+                <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-xl border border-[#E2E8F0] shadow-xl z-50 p-1.5 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-3 py-1.5 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider">
+                    Location
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectLoc('Use my current location')}
+                    className="w-full flex items-center justify-between px-3.5 py-2.5 text-xs text-left hover:bg-[#F0FDF4] rounded-lg transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2 text-[#16A34A] font-semibold">
+                      <MapPin className="w-4 h-4 shrink-0" />
+                      <span>Use my current location (GPS)</span>
+                    </div>
+                    {selectedLocation === 'Use my current location' && (
+                      <Check className="w-3.5 h-3.5 text-[#16A34A]" />
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
-          )}
+
+            {/* Green Pill Search Button */}
+            <button
+              type="submit"
+              className="shrink-0 px-5 py-2 bg-[#16A34A] hover:bg-[#0F7A44] active:bg-[#0A5630] text-white text-xs sm:text-sm font-semibold rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <Search className="w-3.5 h-3.5" />
+              <span>Search</span>
+            </button>
+          </div>
         </div>
 
-        {/* 3. Primary Green Search Button */}
-        <button
-          type="submit"
-          className="shrink-0 px-6 py-2.5 bg-[#16A34A] hover:bg-[#0F7A44] active:bg-[#0A5630] text-white text-sm font-semibold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] focus-visible:ring-offset-2"
-        >
-          <span>Search</span>
-        </button>
+        {/* ======================================================== */}
+        {/* DESKTOP 1-ROW BAR LAYOUT (>= 1024px)                     */}
+        {/* ======================================================== */}
+        <div className="hidden lg:flex items-center p-2 gap-2">
+          {/* 1. Search Query Input */}
+          <div className="flex-1 flex items-center px-3 py-1.5 min-w-0 relative">
+            <Search className="w-5 h-5 text-[#94A3B8] shrink-0 mr-3" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              onFocus={() => {
+                if (searchQuery.trim().length > 0) setSuggestionsOpen(true);
+              }}
+              onKeyDown={handleKeyDown}
+              placeholder="Search for shops, services, or categories (e.g. stationery, sweets, photocopy)..."
+              aria-label="Search query"
+              autoComplete="off"
+              className="w-full min-w-0 bg-transparent text-[#0F172A] placeholder-[#94A3B8] text-sm md:text-[15px] focus:outline-none"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => {
+                  onSearchChange('');
+                  setSuggestions([]);
+                  setSuggestionsOpen(false);
+                }}
+                className="text-xs text-[#94A3B8] hover:text-[#0F172A] px-1 py-0.5"
+                title="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          {/* Vertical separator on desktop */}
+          <div className="w-px h-8 bg-[#E2E8F0]" />
+
+          {/* 2. Location Selector Dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setLocationOpen(!locationOpen)}
+              className="flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-[#0F172A] hover:bg-slate-50 rounded-xl transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-2 truncate">
+                <MapPin className="w-4 h-4 text-[#16A34A] shrink-0" />
+                <span className="truncate max-w-[180px]">
+                  {selectedLocation || 'Use my current location'}
+                </span>
+              </div>
+              <ChevronDown
+                className={`w-4 h-4 text-[#64748B] shrink-0 transition-transform duration-200 ${
+                  locationOpen ? 'rotate-180 text-[#16A34A]' : ''
+                }`}
+              />
+            </button>
+
+            {locationOpen && (
+              <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl border border-[#E2E8F0] shadow-xl z-50 p-1.5 animate-in fade-in zoom-in-95 duration-150">
+                <div className="px-3 py-1.5 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider">
+                  Location
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleSelectLoc('Use my current location')}
+                  className="w-full flex items-center justify-between px-3.5 py-2.5 text-xs text-left hover:bg-[#F0FDF4] rounded-lg transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-2 text-[#16A34A] font-semibold">
+                    <MapPin className="w-4 h-4 shrink-0" />
+                    <span>Use my current location (GPS)</span>
+                  </div>
+                  {selectedLocation === 'Use my current location' && (
+                    <Check className="w-3.5 h-3.5 text-[#16A34A]" />
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* 3. Primary Green Search Button */}
+          <button
+            type="submit"
+            className="shrink-0 px-6 py-2.5 bg-[#16A34A] hover:bg-[#0F7A44] active:bg-[#0A5630] text-white text-sm font-semibold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer focus:outline-none"
+          >
+            <span>Search</span>
+          </button>
+        </div>
       </form>
 
       {/* 4. Category-Only Autocomplete Suggestions Floating Dropdown */}
