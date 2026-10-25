@@ -4,7 +4,7 @@ export default function BrandLogo({ size = 'default', showTagline = true, classN
   const isSmall = size === 'small';
   
   return (
-    <div className={`flex items-center gap-2 sm:gap-2.5 select-none ${className}`}>
+    <div className={`flex items-center gap-2 sm:gap-2.5 select-none text-left ${className}`}>
       {/* ShopNear Location Pin Logo Icon */}
       <div className="relative shrink-0 flex items-center justify-center">
         <svg
@@ -24,9 +24,9 @@ export default function BrandLogo({ size = 'default', showTagline = true, classN
       </div>
 
       {/* Brand Text & Tagline */}
-      <div className="flex flex-col leading-tight min-w-0">
+      <div className="flex flex-col items-start text-left leading-tight min-w-0">
         <span
-          className={`font-bold tracking-tight text-[#0F172A] ${
+          className={`font-bold tracking-tight text-[#0F172A] text-left block w-full ${
             isSmall ? "text-base" : "text-lg sm:text-2xl"
           }`}
           style={{ letterSpacing: '-0.02em' }}
@@ -35,7 +35,7 @@ export default function BrandLogo({ size = 'default', showTagline = true, classN
           <span className="text-[#16A34A]">Near</span>
         </span>
         {showTagline && (
-          <span className="text-[10px] sm:text-[11px] font-normal text-[#64748B] -mt-0.5 tracking-tight truncate">
+          <span className="text-[10px] sm:text-[11px] font-normal text-[#64748B] text-left -mt-0.5 tracking-tight truncate block w-full">
             Discover Shops Around You
           </span>
         )}

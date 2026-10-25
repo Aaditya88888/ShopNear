@@ -62,7 +62,7 @@ export default function Navbar({ onNavigate, activeTab: propActiveTab }) {
               navigate('/');
             }
           }}
-          className="flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] rounded-lg cursor-pointer"
+          className="flex items-center text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] rounded-lg cursor-pointer"
           aria-label="ShopNear Home"
         >
           <BrandLogo />
