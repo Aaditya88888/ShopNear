@@ -26,6 +26,7 @@ import {
   AlertTriangle,
   Download,
   Loader2,
+  LogOut,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
@@ -35,7 +36,7 @@ import BottomNav from '../components/layout/BottomNav';
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 export default function ProfilePage() {
-  const { user, updateProfile, uploadAvatar, removeAvatar, changePassword, deleteAccount } = useAuth();
+  const { user, updateProfile, uploadAvatar, removeAvatar, changePassword, deleteAccount, logout } = useAuth();
   const navigate = useNavigate();
 
   // State
@@ -287,6 +288,18 @@ export default function ProfilePage() {
       toast.error('Network error while deleting account.');
     } finally {
       setDeletingAccount(false);
+    }
+  };
+
+  // Logout
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.info('You have been logged out.');
+      navigate('/');
+    } catch (err) {
+      console.error('Logout error:', err);
+      toast.error('Failed to log out. Please try again.');
     }
   };
 
@@ -699,7 +712,29 @@ export default function ProfilePage() {
                   <ChevronRight className="w-4 h-4 text-[#94A3B8] group-hover:text-[#16A34A] group-hover:translate-x-0.5 transition-all shrink-0" />
                 </button>
 
-                {/* 5. Delete Account */}
+                {/* 5. Logout */}
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full text-left border border-[#E2E8F0] hover:border-[#16A34A] hover:bg-[#F0FDF4]/60 rounded-2xl p-3.5 flex items-center justify-between transition-all cursor-pointer group shadow-2xs"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-full bg-[#E7FBF1] text-[#16A34A] flex items-center justify-center shrink-0">
+                      <LogOut className="w-5 h-5 text-[#16A34A]" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-bold text-sm text-[#0F172A] group-hover:text-[#16A34A] transition-colors truncate">
+                        Logout
+                      </div>
+                      <div className="text-xs text-[#64748B] truncate">
+                        Sign out of your account
+                      </div>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-[#94A3B8] group-hover:text-[#16A34A] group-hover:translate-x-0.5 transition-all shrink-0" />
+                </button>
+
+                {/* 6. Delete Account */}
                 <button
                   type="button"
                   onClick={() => setShowDeleteAccountModal(true)}
