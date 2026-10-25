@@ -196,9 +196,10 @@ export default function AuthPage({ mode: initialMode }) {
             resetSignupStep();
             navigate('/');
           }}
-          className="cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] rounded-lg shrink-0"
+          className="flex items-center text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#16A34A] rounded-lg shrink-0"
+          aria-label="ShopNear Home"
         >
-          <BrandLogo showTagline={false} size="small" />
+          <BrandLogo size="default" showTagline={true} />
         </button>
 
         <button
