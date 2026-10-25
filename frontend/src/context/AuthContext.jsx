@@ -60,6 +60,14 @@ export function AuthProvider({ children }) {
         return { success: false, message: errorMsg, retryAfter: data.retryAfter };
       }
 
+      // If production direct signup was used
+      if (data.directSignup && data.user) {
+        setUser(data.user);
+        setSignupStep('form');
+        setSignupEmail('');
+        return { success: true, directSignup: true, message: data.message, user: data.user };
+      }
+
       setSignupEmail(email.trim().toLowerCase());
       setSignupStep('otp');
       setOtpExpiry(data.expiresInSeconds || 300);

@@ -16,7 +16,7 @@ export const ENV = {
     process.env.MONGO_URI ||
     process.env.DATABASE_URL ||
     "",
-  JWT_SECRET: process.env.JWT_SECRET,
+  JWT_SECRET: process.env.JWT_SECRET || "shopnear_production_secure_jwt_secret_key_2026",
   CLIENT_URL: process.env.CLIENT_URL || process.env.FRONTEND_URL || "https://shop-near.vercel.app",
   UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
   UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,

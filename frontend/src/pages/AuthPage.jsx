@@ -129,11 +129,17 @@ export default function AuthPage({ mode: initialMode }) {
     const res = await initiateSignup(email, password);
     setIsSubmitting(false);
     if (res.success) {
-      toast.info('Verification code sent! Please check your email inbox (and spam folder).');
-      setOtp('');
-      setOtpTimer(300);
-      setResendCooldown(30);
-      setCanResend(false);
+      if (res.directSignup) {
+        toast.success('Account created successfully! Welcome to ShopNear 🎉');
+        const destination = location.state?.from?.pathname || '/';
+        navigate(destination);
+      } else {
+        toast.info('Verification code sent! Please check your email inbox (and spam folder).');
+        setOtp('');
+        setOtpTimer(300);
+        setResendCooldown(30);
+        setCanResend(false);
+      }
     } else {
       toast.error(res.message || 'Failed to send verification code');
     }

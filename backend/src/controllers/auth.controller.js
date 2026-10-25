@@ -85,6 +85,53 @@ export const initiateSignup = async (req, res) => {
       });
     }
 
+    // =========================================================================
+    // DUAL-MODE SIGNUP ARCHITECTURE:
+    // 1. IN PRODUCTION (Render): Direct Signup (bypasses blocked cloud SMTP ports)
+    // 2. IN DEVELOPMENT (Localhost): Full Upstash Redis Rate Limiting + OTP + Gmail SMTP
+    // =========================================================================
+    const isProduction =
+      ENV.NODE_ENV === "production" ||
+      process.env.ENABLE_DIRECT_SIGNUP === "true" ||
+      process.env.RENDER === "true";
+
+    if (isProduction) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      let user = existingUser;
+      if (user && !user.isVerified) {
+        user.password = hashedPassword;
+        user.isVerified = true;
+        user.lastLogin = new Date();
+        await user.save();
+      } else {
+        user = await User.create({
+          email: normalizedEmail,
+          password: hashedPassword,
+          isVerified: true,
+          lastLogin: new Date(),
+        });
+      }
+
+      // Generate JWT token
+      const token = jwt.sign(
+        { userId: user._id, role: user.role },
+        ENV.JWT_SECRET,
+        { expiresIn: "7d" },
+      );
+
+      // Set secure HttpOnly cookie
+      setAuthCookie(res, token);
+
+      return res.status(201).json({
+        success: true,
+        directSignup: true,
+        message: "Account created successfully!",
+        user: formatUser(user),
+      });
+    }
+
     // Rate Limiting: Max 5 OTP requests per email in 60s
     const emailLimitResult = await otpEmailRateLimiter.limit(normalizedEmail);
     if (!emailLimitResult.success) {
