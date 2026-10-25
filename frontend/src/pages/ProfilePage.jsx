@@ -52,7 +52,7 @@ export default function ProfilePage() {
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
   const [showInstallAppModal, setShowInstallAppModal] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [deferredPrompt, setDeferredPrompt] = useState(() => (typeof window !== 'undefined' ? window.deferredPrompt : null));
 
   // Edit Profile Form State
   const [profileForm, setProfileForm] = useState({
@@ -111,16 +111,40 @@ export default function ProfilePage() {
     fetchUserShops();
   }, []);
 
-  // Capture PWA beforeinstallprompt event
+  // Connect to PWA beforeinstallprompt (captured globally or locally)
   useEffect(() => {
+    // If window.deferredPrompt was captured earlier at page startup, grab it immediately
+    if (window.deferredPrompt) {
+      setDeferredPrompt(window.deferredPrompt);
+    }
+
+    const handlePromptReady = () => {
+      if (window.deferredPrompt) {
+        setDeferredPrompt(window.deferredPrompt);
+      }
+    };
+
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
+      window.deferredPrompt = e;
       setDeferredPrompt(e);
     };
 
+    const handleAppInstalled = () => {
+      window.deferredPrompt = null;
+      setDeferredPrompt(null);
+    };
+
+    window.addEventListener('pwa-prompt-ready', handlePromptReady);
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('pwa-app-installed', handleAppInstalled);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
     return () => {
+      window.removeEventListener('pwa-prompt-ready', handlePromptReady);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('pwa-app-installed', handleAppInstalled);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 
@@ -303,17 +327,42 @@ export default function ProfilePage() {
     }
   };
 
-  // Install PWA Trigger
-  const handleInstallClick = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        toast.success('Thank you for installing ShopNear!');
+  // Install PWA Trigger - Opens Install Confirmation Modal
+  const handleInstallClick = () => {
+    setShowInstallAppModal(true);
+  };
+
+  // Confirm Install Action
+  const handleConfirmInstall = async () => {
+    const promptEvent = deferredPrompt || (typeof window !== 'undefined' ? window.deferredPrompt : null);
+
+    if (promptEvent) {
+      try {
+        await promptEvent.prompt();
+        const { outcome } = await promptEvent.userChoice;
+        if (outcome === 'accepted') {
+          toast.success('Thank you for installing ShopNear!');
+        }
+      } catch (err) {
+        console.error('PWA install prompt error:', err);
+      } finally {
+        window.deferredPrompt = null;
+        setDeferredPrompt(null);
+        setShowInstallAppModal(false);
       }
-      setDeferredPrompt(null);
     } else {
-      setShowInstallAppModal(true);
+      setShowInstallAppModal(false);
+      const isStandalone = typeof window !== 'undefined' && (
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true
+      );
+      if (isStandalone) {
+        toast.info('ShopNear is already installed and running on your device!');
+      } else {
+        toast.info('To install on this device: Tap your browser address bar icon or menu and select "Install ShopNear".', {
+          autoClose: 7000,
+        });
+      }
     }
   };
 
@@ -1111,12 +1160,12 @@ export default function ProfilePage() {
       )}
 
       {/* ======================================================== */}
-      {/* MODAL 4: Install PWA Guide                               */}
+      {/* MODAL 4: Install PWA Confirmation Modal                  */}
       {/* ======================================================== */}
       {showInstallAppModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in">
           <div className="bg-white rounded-2xl sm:rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-[#E2E8F0]">
-            <div className="flex items-center justify-between pb-4 border-b border-[#F1F5F9]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#F1F5F9]">
               <div className="flex items-center gap-2">
                 <Download className="w-5 h-5 text-[#16A34A]" />
                 <h3 className="font-bold text-[#0F172A] text-lg">Install ShopNear</h3>
@@ -1130,33 +1179,49 @@ export default function ProfilePage() {
               </button>
             </div>
 
-            <div className="mt-4 space-y-3.5 text-xs sm:text-sm text-[#475569] leading-relaxed">
-              <p>
-                You can install ShopNear as a native web app directly onto your home screen or desktop:
-              </p>
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                <div>
-                  <strong className="text-[#0F172A]">Chrome / Edge (Desktop & Android):</strong>
-                  <p className="text-xs text-[#64748B]">
-                    Click the install icon in the URL address bar or select &ldquo;Install ShopNear&rdquo; from the browser menu.
-                  </p>
-                </div>
-                <div>
-                  <strong className="text-[#0F172A]">Safari (iOS):</strong>
-                  <p className="text-xs text-[#64748B]">
-                    Tap the Share button (<span className="font-mono">⎋</span>) in Safari and choose &ldquo;Add to Home Screen&rdquo;.
-                  </p>
-                </div>
+            {/* App Icon & Branding */}
+            <div className="pt-4 flex flex-col items-center text-center">
+              <img
+                src="/pwa-192x192.png"
+                alt="ShopNear App Icon"
+                className="w-18 h-18 rounded-2xl shadow-md border border-[#DCFCE7] mb-3 select-none"
+              />
+              <h4 className="text-base font-bold text-[#0F172A]">ShopNear</h4>
+              <p className="text-xs text-[#64748B]">Discover Shops Around You</p>
+            </div>
+
+            {/* Feature Benefits List */}
+            <div className="mt-4 p-3.5 bg-[#F0FDF4]/70 rounded-2xl border border-[#DCFCE7] space-y-2 text-xs sm:text-[13px] text-[#334155]">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                <span>Instant 1-tap launch from your home screen</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                <span>Fullscreen app view with zero browser address bars</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                <span>Ultra-fast, lightweight & uses less than 2 MB</span>
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end">
+            {/* Action Buttons: Cancel and Install */}
+            <div className="mt-6 flex items-center justify-end gap-3 pt-3 border-t border-[#F1F5F9]">
               <button
                 type="button"
                 onClick={() => setShowInstallAppModal(false)}
-                className="px-5 py-2.5 bg-[#16A34A] hover:bg-[#0F7A44] text-white text-xs sm:text-sm font-semibold rounded-xl transition-all cursor-pointer"
+                className="px-4 py-2.5 border border-[#E2E8F0] hover:bg-slate-50 text-[#64748B] hover:text-[#0F172A] text-xs sm:text-sm font-semibold rounded-xl transition-all cursor-pointer"
               >
-                Got It
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmInstall}
+                className="px-5 py-2.5 bg-[#16A34A] hover:bg-[#0F7A44] text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <Download className="w-4 h-4" />
+                <span>Install</span>
               </button>
             </div>
           </div>

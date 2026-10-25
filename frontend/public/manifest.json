@@ -1,0 +1,26 @@
+{
+  "name": "ShopNear — Discover Shops Around You",
+  "short_name": "ShopNear",
+  "description": "Hyperlocal shop and service discovery platform",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F8FAFC",
+  "theme_color": "#16A34A",
+  "categories": ["shopping", "lifestyle", "utilities"],
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
